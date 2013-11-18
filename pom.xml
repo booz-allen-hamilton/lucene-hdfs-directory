@@ -15,7 +15,7 @@
   <groupId>com.bah.lucene</groupId>
   <artifactId>lucene-hdfs-directory</artifactId>
   <packaging>jar</packaging>
-  <name>Blur Store</name>
+  <name>HDFS Lucene Store</name>
   <version>0.3.0</version>
   <description>The Blur store module contains all the Lucene directories and block cache for Blur.</description>
 
@@ -68,6 +68,7 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+  <url>https://github.com/booz-allen-hamilton/lucene-hdfs-directory</url>
 
   <dependencies>
     <dependency>
