@@ -16,7 +16,7 @@
   <artifactId>lucene-hdfs-directory</artifactId>
   <packaging>jar</packaging>
   <name>HDFS Lucene Store</name>
-  <version>0.3.0</version>
+  <version>4.7.0-0</version>
   <description>The Blur store module contains all the Lucene directories and block cache for Blur.</description>
 
   <properties>
