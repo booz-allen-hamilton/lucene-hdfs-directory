@@ -67,7 +67,7 @@ public class BlurLockFactory extends LockFactory {
       }
 
       @Override
-      public void release() throws IOException {
+      public void close() throws IOException {
         _fileSystem.delete(lockPath, false);
       }
 
