@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class HdfsDirectory extends Directory implements LastModified {
+public class HdfsDirectory extends BaseDirectory implements LastModified {
 
   private static final Log LOG = LogFactory.getLog(HdfsDirectory.class);
 
