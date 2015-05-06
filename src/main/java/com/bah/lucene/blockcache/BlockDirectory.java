@@ -205,6 +205,12 @@ public class BlockDirectory extends Directory implements DirectoryDecorator {
     protected void closeInternal() throws IOException {
       _source.close();
     }
+
+    @Override
+    public IndexInput slice(String sliceDescription, long offset, long length)
+        throws IOException {
+      return _source.slice(sliceDescription, offset, length);
+    }
   }
 
   @Override

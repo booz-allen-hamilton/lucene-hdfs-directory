@@ -18,7 +18,10 @@ package com.bah.lucene.blockcache;
  */
 
 import java.io.IOException;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
+import org.apache.lucene.store.BufferedChecksum;
 import org.apache.lucene.store.IndexOutput;
 
 import com.bah.lucene.buffer.ReusedBufferedIndexOutput;
@@ -35,6 +38,7 @@ public class CachedIndexOutput extends ReusedBufferedIndexOutput {
   private final String _name;
   private final String _location;
   private final Cache _cache;
+  private final Checksum _digest;
 
   public CachedIndexOutput(BlockDirectory directory, IndexOutput dest, int blockSize, String name, Cache cache, int bufferSize) {
     super(bufferSize);
@@ -44,6 +48,7 @@ public class CachedIndexOutput extends ReusedBufferedIndexOutput {
     _name = name;
     _location = _directory.getFileCacheLocation(name);
     _cache = cache;
+    _digest = new BufferedChecksum(new CRC32());
   }
 
   @Override
@@ -70,6 +75,7 @@ public class CachedIndexOutput extends ReusedBufferedIndexOutput {
 
     // write the file and copy into the cache
     _dest.writeBytes(b, offset, lengthToWriteInBlock);
+    _digest.update(b, offset, lengthToWriteInBlock);
     _cache.update(_location, blockId, blockOffset, b, offset, lengthToWriteInBlock);
 
     return lengthToWriteInBlock;
@@ -84,6 +90,11 @@ public class CachedIndexOutput extends ReusedBufferedIndexOutput {
       length -= len;
       offset += len;
     }
+  }
+
+  @Override
+  public long getChecksum() throws IOException {
+    return _digest.getValue();
   }
 
 }

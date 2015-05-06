@@ -36,8 +36,8 @@ public class WriteReadPerformanceTest {
         String[] names = new String[]{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
                 "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
 
-        WhitespaceAnalyzer analyzer = new WhitespaceAnalyzer(Version.LUCENE_43);
-        IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_43, analyzer);
+        WhitespaceAnalyzer analyzer = new WhitespaceAnalyzer();
+        IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_4_10_4, analyzer);
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
         try (IndexWriter indexWriter = new IndexWriter(hdfsDirectory, config)) {
             for (int i = 0; i < 1000000; i++) {
@@ -59,7 +59,7 @@ public class WriteReadPerformanceTest {
             IndexSearcher indexSearcher = new IndexSearcher(reader);
 
             long start = System.currentTimeMillis();
-            Query query = new QueryParser(Version.LUCENE_43, "name", analyzer).parse("r");
+            Query query = new QueryParser("name", analyzer).parse("r");
             TopDocs search = indexSearcher.search(query, 1000);
             ScoreDoc[] scoreDocs = search.scoreDocs;
             System.out.println("Found " + scoreDocs.length + " num of documents from search in " +

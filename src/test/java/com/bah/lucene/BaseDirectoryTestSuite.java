@@ -174,7 +174,7 @@ public abstract class BaseDirectoryTestSuite {
   @Test
   public void testCreateIndex() throws IOException {
     long s = System.nanoTime();
-    IndexWriterConfig conf = new IndexWriterConfig(Version.LUCENE_43, new KeywordAnalyzer());
+    IndexWriterConfig conf = new IndexWriterConfig(Version.LUCENE_4_10_4, new KeywordAnalyzer());
     FSDirectory control = FSDirectory.open(fileControl);
     Directory dir = getControlDir(control, directory);
     // The serial merge scheduler can be useful for debugging.
@@ -249,9 +249,7 @@ public abstract class BaseDirectoryTestSuite {
     int writes = random.nextInt(MAX_NUMBER_OF_WRITES);
     int fileLength = random.nextInt(MAX_FILE_SIZE - MIN_FILE_SIZE) + MIN_FILE_SIZE;
     IndexOutput fsOutput = fsDir.createOutput(name, IOContext.DEFAULT);
-    fsOutput.setLength(fileLength);
     IndexOutput hdfsOutput = hdfs.createOutput(name, IOContext.DEFAULT);
-    hdfsOutput.setLength(fileLength);
     for (int i = 0; i < writes; i++) {
       byte[] buf = new byte[random.nextInt(Math.min(MAX_BUFFER_SIZE - MIN_BUFFER_SIZE, fileLength)) + MIN_BUFFER_SIZE];
       random.nextBytes(buf);
@@ -362,11 +360,6 @@ public abstract class BaseDirectoryTestSuite {
     }
 
     @Override
-    public IndexInputSlicer createSlicer(String name, IOContext context) throws IOException {
-      return _directory.createSlicer(name, context);
-    }
-
-    @Override
     public boolean fileExists(String name) throws IOException {
       return _directory.fileExists(name);
     }
@@ -411,11 +404,6 @@ public abstract class BaseDirectoryTestSuite {
       }
 
       @Override
-      public IndexInputSlicer createSlicer(String name, IOContext context) throws IOException {
-        return control.createSlicer(name, context);
-      }
-
-      @Override
       public IndexOutput createOutput(final String name, IOContext context) throws IOException {
         final IndexOutput testOutput = test.createOutput(name, context);
         final IndexOutput controlOutput = control.createOutput(name, context);
@@ -444,13 +432,6 @@ public abstract class BaseDirectoryTestSuite {
             return filePointer;
           }
 
-          @SuppressWarnings("deprecation")
-          @Override
-          public void seek(long pos) throws IOException {
-            testOutput.seek(pos);
-            controlOutput.seek(pos);
-          }
-
           @Override
           public long length() throws IOException {
             long length = testOutput.length();
@@ -472,6 +453,18 @@ public abstract class BaseDirectoryTestSuite {
           public void writeBytes(byte[] b, int offset, int length) throws IOException {
             testOutput.writeBytes(b, offset, length);
             controlOutput.writeBytes(b, offset, length);
+          }
+
+          @Override
+          public long getChecksum() throws IOException {
+            long checksum = testOutput.getChecksum();
+            long controlChecksum = controlOutput.getChecksum();
+            if (checksum != controlChecksum) {
+              System.err.println("Output Name [" + name + "] with checksum ["
+                  + checksum + "] and control checksum [" + controlChecksum
+                  + "] does not match");
+            }
+            return checksum;
           }
 
         };
@@ -635,6 +628,12 @@ public abstract class BaseDirectoryTestSuite {
       clone.controlInput = controlInput.clone();
       clone.testInput = testInput.clone();
       return clone;
+    }
+
+    @Override
+    public IndexInput slice(String sliceDescription, long offset, long length)
+        throws IOException {
+      throw new UnsupportedOperationException();
     }
 
   }
