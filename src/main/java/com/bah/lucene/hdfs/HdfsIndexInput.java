@@ -16,11 +16,13 @@
  */
 package com.bah.lucene.hdfs;
 
+import java.io.IOException;
+
 import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.lucene.store.IndexInput;
 
 import com.bah.lucene.buffer.ReusedBufferedIndexInput;
-
-import java.io.IOException;
+import com.bah.lucene.buffer.SlicedIndexInput;
 
 public class HdfsIndexInput extends ReusedBufferedIndexInput {
 
@@ -29,7 +31,8 @@ public class HdfsIndexInput extends ReusedBufferedIndexInput {
   private boolean _isClone;
   private int _readVersion;
 
-  public HdfsIndexInput(String name, FSDataInputStream inputStream, long length, int readVersion) throws IOException {
+  public HdfsIndexInput(String name, FSDataInputStream inputStream,
+      long length, int readVersion) throws IOException {
     super(name);
     _inputStream = inputStream;
     _length = length;
@@ -47,7 +50,8 @@ public class HdfsIndexInput extends ReusedBufferedIndexInput {
   }
 
   @Override
-  protected void readInternal(byte[] b, int offset, int length) throws IOException {
+  protected void readInternal(byte[] b, int offset, int length)
+      throws IOException {
     long start = System.nanoTime();
     long filePointer = getFilePointer();
     switch (_readVersion) {
@@ -100,5 +104,11 @@ public class HdfsIndexInput extends ReusedBufferedIndexInput {
     clone._isClone = true;
     clone._readVersion = HdfsDirectory.fetchImpl.get();
     return clone;
+  }
+
+  @Override
+  public IndexInput slice(String sliceDescription, long offset, long length)
+      throws IOException {
+    return new SlicedIndexInput(sliceDescription, this, offset, length);
   }
 }

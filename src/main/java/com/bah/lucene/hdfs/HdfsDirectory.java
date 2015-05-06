@@ -27,11 +27,8 @@ import com.bah.lucene.blockcache.LastModified;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.text.MessageFormat;
 import java.util.Collection;
-import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class HdfsDirectory extends BaseDirectory implements LastModified {
@@ -96,29 +93,7 @@ public class HdfsDirectory extends BaseDirectory implements LastModified {
       throw new IOException("File [" + name + "] already exists found.");
     }
     final FSDataOutputStream outputStream = openForOutput(name);
-    return new BufferedIndexOutput() {
-
-      @Override
-      public long length() throws IOException {
-        return outputStream.getPos();
-      }
-
-      @Override
-      protected void flushBuffer(byte[] b, int offset, int len) throws IOException {
-        outputStream.write(b, offset, len);
-      }
-
-      @Override
-      public void close() throws IOException {
-        super.close();
-        outputStream.close();
-      }
-
-      @Override
-      public void seek(long pos) throws IOException {
-        throw new IOException("seeks not allowed on IndexOutputs.");
-      }
-    };
+    return new OutputStreamIndexOutput(outputStream, 16384);
   }
 
   protected FSDataOutputStream openForOutput(String name) throws IOException {

@@ -18,7 +18,10 @@
 package com.bah.lucene.blockcache_v2;
 
 import java.io.IOException;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
+import org.apache.lucene.store.BufferedChecksum;
 import org.apache.lucene.store.IndexOutput;
 
 import com.bah.lucene.buffer.BufferStore;
@@ -32,6 +35,7 @@ public class CacheIndexOutput extends IndexOutput {
   private final long _fileId;
   private final int _fileBufferSize;
   private final int _cacheBlockSize;
+  private final Checksum _digest;
 
   private long _position;
   private byte[] _buffer;
@@ -47,11 +51,7 @@ public class CacheIndexOutput extends IndexOutput {
     _fileId = _cache.getFileId(_directory, _fileName);
     _indexOutput = indexOutput;
     _buffer = BufferStore.takeBuffer(_cacheBlockSize);
-  }
-
-  @Override
-  public void setLength(long length) throws IOException {
-
+    _digest = new BufferedChecksum(new CRC32());
   }
 
   @Override
@@ -105,14 +105,10 @@ public class CacheIndexOutput extends IndexOutput {
     while (len > 0) {
       int length = Math.min(_fileBufferSize, len);
       _indexOutput.writeBytes(_buffer, offset, length);
+      _digest.update(_buffer, offset, length);
       len -= length;
       offset += length;
     }
-  }
-
-  @Override
-  public void seek(long pos) throws IOException {
-    throw new IOException("Seek is not supported.");
   }
 
   @Override
@@ -136,5 +132,10 @@ public class CacheIndexOutput extends IndexOutput {
   @Override
   public long length() throws IOException {
     return getFilePointer();
+  }
+
+  @Override
+  public long getChecksum() throws IOException {
+    return _digest.getValue();
   }
 }

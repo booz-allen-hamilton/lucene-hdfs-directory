@@ -150,10 +150,6 @@ public class CacheDirectory extends Directory implements DirectoryDecorator, Las
     _internal.copy(to, src, dest, context);
   }
 
-  public IndexInputSlicer createSlicer(String name, IOContext context) throws IOException {
-    return _internal.createSlicer(name, context);
-  }
-
   public String getDirectoryName() {
     return _directoryName;
   }

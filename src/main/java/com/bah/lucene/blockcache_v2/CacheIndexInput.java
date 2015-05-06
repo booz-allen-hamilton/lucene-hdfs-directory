@@ -43,8 +43,8 @@ public class CacheIndexInput extends IndexInput {
   private boolean _quiet;
   private boolean _isClosed;
 
-  public CacheIndexInput(CacheDirectory directory, String fileName, IndexInput indexInput, Cache cache)
-      throws IOException {
+  public CacheIndexInput(CacheDirectory directory, String fileName,
+      IndexInput indexInput, Cache cache) throws IOException {
     super(fileName);
     _directory = directory;
     _fileName = fileName;
@@ -128,7 +128,8 @@ public class CacheIndexInput extends IndexInput {
       i |= (b & 0x7FL) << 56;
       if (b >= 0)
         return i;
-      throw new IOException("Invalid vLong detected (negative values disallowed)");
+      throw new IOException(
+          "Invalid vLong detected (negative values disallowed)");
     }
     return super.readVLong();
   }
@@ -213,7 +214,8 @@ public class CacheIndexInput extends IndexInput {
   public void seek(long pos) throws IOException {
     ensureOpen();
     if (pos >= _fileLength) {
-      throw new IOException("Can not seek past end of file [" + pos + "] filelength [" + _fileLength + "]");
+      throw new IOException("Can not seek past end of file [" + pos
+          + "] filelength [" + _fileLength + "]");
     }
     if (_position == pos) {
       // Seeking to same position
@@ -340,6 +342,12 @@ public class CacheIndexInput extends IndexInput {
     if (_isClosed) {
       throw new AlreadyClosedException("Already closed: " + this);
     }
+  }
+
+  @Override
+  public IndexInput slice(String sliceDescription, long offset, long length)
+      throws IOException {
+    return _indexInput.slice(sliceDescription, offset, length);
   }
 
 }
