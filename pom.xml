@@ -26,7 +26,7 @@
 
   <properties>
     <hadoop.version>2.2.0</hadoop.version>
-    <zookeeper.version>3.4.5</zookeeper.version>
+    <zookeeper.version>3.4.14</zookeeper.version>
     <log4j.version>1.2.15</log4j.version>
     <jersey.version>1.14</jersey.version>
     <lucene.version>4.7.0</lucene.version>
